@@ -6,6 +6,7 @@ module Miso.GraphQL.TH
     , ImplementsInterface
     , ID
     , documentFile
+    , documentString
     )
 where
 
@@ -56,11 +57,13 @@ documentFile :: FilePath -> DecsQ
 documentFile f = do
     f <- makeRelativeToProject f
     qAddDependentFile f
-    src <- runIO $ readFile f
-    let src' = toMisoString src
-    doc <-
-        either (fail . show) pure $ Parser.parse' Lexer.tokens Parser.document src'
-    document doc
+    documentString =<< runIO (readFile f)
+
+documentString :: String -> DecsQ
+documentString =
+    either (fail . show) document
+        . Parser.parse' Lexer.tokens Parser.document
+        . toMisoString
 
 typeDefinitionName :: TypeDefinition -> Name
 typeDefinitionName (DefinitionScalarType (ScalarTypeDefinition _ name _)) = name
