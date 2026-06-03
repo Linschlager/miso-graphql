@@ -18,7 +18,7 @@ newtype Request = Request {query :: MisoString}
     deriving newtype (FromMisoString, ToMisoString)
 
 execute
-    :: forall a b error parent model action
+    :: forall a b error parent props model action
      . (IsRootOperationType a, FromJSVal error)
     => Selector a b
     -> MisoString
@@ -29,7 +29,7 @@ execute
     -- ^ successful callback
     -> (Response error -> action)
     -- ^ errorful callback
-    -> Effect parent model action
+    -> Effect parent props model action
 execute selector url headers successful =
     postJSON' url request headers \Response{..} ->
         successful
